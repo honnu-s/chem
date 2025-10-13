@@ -218,7 +218,7 @@ const renderLegend = (props: { counts: { Good: number; Moderate: number; Bad: nu
   </div>)
 };
 
-const CustomTooltip = ({ active, payload }) => {
+const CustomTooltip = ({ active, payload }:any) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white border border-gray-300 rounded-lg p-2 shadow-md text-sm">
