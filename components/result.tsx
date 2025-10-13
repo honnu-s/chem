@@ -338,7 +338,7 @@ export function Result(){
         "analyzeResults",
         JSON.stringify({ inputs, results })
       );
-    } catch (err) {
+    } catch (err:any) {
       console.error(err);
       setError(err.response?.data?.error || "Failed to fetch results. Please try again."); 
 

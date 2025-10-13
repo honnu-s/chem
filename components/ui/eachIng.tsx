@@ -136,7 +136,7 @@ export function EachIng({item}:any){
         <span className="ml-3 text-gray-700">:</span>
       </div>
       <div>
-        {Array.isArray(item.link) && item.link.map((l, idx) => (
+        {Array.isArray(item.link) && item.link.map((l:any, idx:number) => (
   <a
     key={idx}
     href={l}

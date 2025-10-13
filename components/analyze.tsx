@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { useState, useRef,useMemo } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { toast } from "sonner";
@@ -140,6 +140,8 @@ for (const raw of inputText.split(",")) {
               Upload Label Photo
             </label>
             <input
+               id="ingredientInput"
+  placeholder="upload"
               type="file"
               accept="image/*"
               ref={fileInputRef}

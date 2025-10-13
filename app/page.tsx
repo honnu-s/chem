@@ -16,7 +16,7 @@ export function WhyEuStickySection() {
       "Many cosmetic products sold in India still use chemicals banned in the EU like Glow and Lovely BB Cream.",
     content: (
       <div className="flex h-full w-full items-center justify-center bg-white">
-        <img
+        <Image
           src="/images/example-product.png"
           width={100}
           height={100}
@@ -74,7 +74,6 @@ export function WhyEuStickySection() {
     <section
       id="why-eu"
       className="relative  w-full bg-white flex flex-col items-center justify-center overflow-hidden"
-      style={{ backgroundColor: "#ffffff" }} 
     >
       <div className="mb-12 text-center">
           <h2 className="text-3xl font-bold my-4 ">
@@ -87,7 +86,7 @@ export function WhyEuStickySection() {
             ingredient transparency and consumer safety.
           </p>
         </div>
-      <div className="w-full min-h-screen max-w-6xl bg-white" style={{ backgroundColor: "#ffffff" }}>
+      <div className="w-full min-h-screen max-w-6xl bg-white" >
   <StickyScroll 
     content={content} 
     contentClassName="bg-white text-black" 
@@ -105,7 +104,6 @@ export default function Home() {
   const { ref:refH, inView:headinView } = useInView({ triggerOnce: true });
   const { ref:refd, inView:dinView } = useInView({ triggerOnce: true, threshold: 0.2 });
   const { ref: refAnim, inView: animInView } = useInView({ triggerOnce: true, threshold: 0.2 });
-  const { ref:refEu, inView:EuinView } = useInView({ triggerOnce: true });
    const sectionRef = useRef(null);
    const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -136,7 +134,8 @@ export default function Home() {
                   headinView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-5"
                 }`}
               >
-                Know What's Inside Your Cosmetics
+Know What&apos;s Inside Your Cosmetics
+
               </h1>
               <p
                 className={`md:text-lg text-sm text-gray-700 mb-6 transition-all duration-1000 ${
@@ -270,7 +269,7 @@ export default function Home() {
       <p className="text-black text-sm mt-2">
         By using EU Annex II & III as a foundation, ChemGuard ensures you get science-backed, reliable results every time.
       </p>
-      <a
+      <a rel="noopener"
         href="https://ec.europa.eu/growth/sectors/cosmetics/cosing_en"
         target="_blank"
         className="text-sky-600 hover:underline text-sm mt-2 inline-block"
