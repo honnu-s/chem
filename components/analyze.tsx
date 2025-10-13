@@ -2,8 +2,10 @@
 import Image from "next/image";
 import { useState, useRef,useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Tesseract from "tesseract.js";
 import { X } from "lucide-react";
+import { toast } from "sonner";
+import { Upload } from "lucide-react";
+
 
 export function Analyze() {
   const router = useRouter();
@@ -29,7 +31,7 @@ for (const raw of inputText.split(",")) {
   if (trimmed) ingredientArray.push(trimmed);
 }
     if (ingredientArray.length === 0) {
-      setError("Please provide at least one ingredient.");
+      toast.error("please provide input")
       return;
     }
 
@@ -46,16 +48,15 @@ for (const raw of inputText.split(",")) {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("Please upload a valid image file.");
+      toast.error("Please upload a valid image file.");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError("File size too large (max 5MB).");
+      toast.error("File size too large (max 5MB).");
       return;
     }
 
-    setError("");
     setImageFile(file);
     setPreviewUrl(URL.createObjectURL(file));
   };
@@ -73,18 +74,37 @@ for (const raw of inputText.split(",")) {
 
     setLoading(true);
     try {
-      const result = await Tesseract.recognize(imageFile, "eng");
-      setInputText(result.data.text);
+      const form = new FormData();
+      form.append("file", imageFile);
+      form.append("apikey", process.env.NEXT_PUBLIC_OCR_API_KEY || "");
+      form.append("language", "eng");
+
+      const res = await fetch("https://api.ocr.space/parse/image", {
+        method: "POST",
+        body: form,
+      });
+
+      const data = await res.json();
+      if (data.IsErroredOnProcessing) {
+        throw new Error(data.ErrorMessage?.[0] || "OCR failed");
+      }
+      console.log(data)
+      const text = data.ParsedResults?.[0]?.ParsedText || "";
+      setInputText(text);
+
+      toast.success("Text extracted successfully!");
+
     } catch (err) {
-      setError("Could not extract text from image.");
+        toast.error("Could not extract text from image.");
+
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="flex flex-col items-center justify-center min-h-screen bg-gray-50 px-6">
-      <div className="max-w-5xl w-full bg-white shadow-2xl rounded-2xl p-6">
+    <section className="flex flex-col md:items-center md:justify-center min-h-screen  bg-emerald-50 md:px-6">
+      <div className="max-w-5xl w-full bg-white p-6 shadow-[10px_10px_0px_black] rounded-xl">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">
             Analyze Your Ingredients
@@ -102,20 +122,21 @@ for (const raw of inputText.split(",")) {
 
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex-1">
-            <label className="block text-gray-800 font-semibold mb-2">
+            <label className="flex block text-gray-800 font-bold mb-2">
               Ingredients List
             </label>
             <textarea
               value={inputText}
               onChange={handleChange}
-              className="w-full h-48 p-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-emerald-400 outline-none text-gray-800"
+              className="w-full h-48 p-3 rounded-xl border border-black focus:border-white focus:ring-2 focus:ring-emerald-400 outline-none text-gray-800"
               placeholder="Paste ingredients here... (e.g., Aqua, Glycerin, etc.)"
             />
           </div>
 
           {/* Image Upload */}
           <div className="w-full md:w-1/3">
-            <label className="block text-gray-800 font-semibold mb-2">
+            <label className=" flex block text-gray-800 font-bold mb-2">
+              <Upload className="w-5 h-5 text-emerald-600 mr-2" /> 
               Upload Label Photo
             </label>
             <input
@@ -123,7 +144,8 @@ for (const raw of inputText.split(",")) {
               accept="image/*"
               ref={fileInputRef}
               onChange={handleImageUpload}
-              className="w-full border border-gray-300 p-2 rounded-xl text-gray-800"
+              className="w-full border border-gray-300 p-2 rounded-xl text-gray-800 shadow-[3px_3px_0px_black]
+"
             />
 
             {previewUrl && (
@@ -137,7 +159,8 @@ for (const raw of inputText.split(",")) {
                 />
                 <button
                   onClick={handleRemoveImage}
-                  className="absolute top-2 right-2 bg-white p-1 shadow hover:bg-gray-200"
+                  className="absolute  top-2 right-2 bg-white p-1 shadow-[3px_3px_0px_black]
+ hover:bg-gray-200"
                   aria-label="Remove image"
                 >
                   <X size={18} className="text-red-600" />
@@ -148,7 +171,8 @@ for (const raw of inputText.split(",")) {
             <button
               onClick={handleAnalyzeImage}
               disabled={loading}
-              className="mt-4 w-full bg-emerald-500 text-white font-semibold py-2 rounded-xl hover:bg-emerald-600 transition disabled:opacity-50"
+              className="shadow-[3px_3px_0px_black]
+ mt-4 w-full bg-emerald-500 text-white font-semibold py-2 rounded-xl hover:bg-emerald-600 transition disabled:opacity-50"
             >
               {loading ? "Analyzing..." : "Extract Ingredients"}
             </button>
@@ -172,7 +196,7 @@ for (const raw of inputText.split(",")) {
         <div className="flex justify-center mt-6">
           <button
             onClick={handleSubmit}
-            className="flex items-center bg-emerald-600 text-white font-semibold py-2 px-6 rounded-xl shadow-md hover:bg-emerald-700 transition"
+            className="flex shadow-[4px_4px_0px_black] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-200 items-center text-base bg-emerald-600 text-white font-semibold py-3 px-2 md:px-6 rounded-xl  hover:bg-emerald-700 transition"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"

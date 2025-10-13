@@ -94,7 +94,7 @@ export function EachIng({item}:any){
 }
         </div>
         
-        <div className="mt-2">
+        <div className="my-3">
             <p className="font-normal text-gray-700 text-[15px] md:text-[19px]">{item.exp}</p>
         </div>
         <div className="md:flex w-full my-2 mx-4">
