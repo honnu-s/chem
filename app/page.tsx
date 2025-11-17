@@ -188,7 +188,7 @@ Know What&apos;s Inside Your Cosmetics
 
 
        
-<section ref={refAnim} className="bg_square-pattren md:p-20">
+<section ref={refAnim} className="bg_square-pattren md:p-2">
   <h1 className={`text-center text-3xl  font-bold mb-12 transition-all duration-1000 ${
       animInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
     }`}>How It Works</h1>
@@ -256,7 +256,7 @@ Know What&apos;s Inside Your Cosmetics
         Many products hide harmful chemicals, so my goal is to make ingredient analysis simple, clear, and trustworthy.
       </p>
       <p className="text-black text-sm mt-2">
-        It’s not just a project for fun—I wanted a tool that protects your health and the environment.
+        It’s not just a project for fun—I wanted a tool that protects health and the environment.
       </p>
     </div>
 

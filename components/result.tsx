@@ -15,8 +15,8 @@ import { Button } from "@/components/ui/button"
 import {PieChart,Pie,Cell,Tooltip,Legend,ResponsiveContainer,} from "recharts";
 import {CircleCheckBig,Minus,TriangleAlert,} from "lucide-react";
 import { EachIng } from "./ui/eachIng";
-
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+// process.env.NEXT_PUBLIC_API_URL ||
+const API_BASE =  "http://localhost:8080";
 
 
 function SearchFilterComponent({ onChange }: { onChange: (filters: { search: string; filter1: string; filter2: string }) => void }) {
@@ -326,10 +326,20 @@ export function Result(){
       }
     }
 
+const token = localStorage.getItem("jwt");
+
+
     try {
-      const res = await axios.post(`${API_BASE}/check-ingredients`, {
-        ingredients: inputs,
-      });
+      const res = await axios.post(
+    `${API_BASE}/check-ingredients`,
+    { ingredients: inputs },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
       console.log(res.data.AI)
       const results = res.data.AI || [];
       setResultData(results);
