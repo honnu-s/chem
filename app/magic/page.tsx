@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
 
-const API_BASE = "http://localhost:8080";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
 export default function Magic() {
   const params = useSearchParams();
@@ -12,6 +12,13 @@ export default function Magic() {
   const router = useRouter();
 
   useEffect(() => {
+    // Prevent build error if env missing
+    if (!API_BASE) {
+      console.error("❌ NEXT_PUBLIC_API_BASE is NOT set");
+      router.replace("/sign-in");
+      return;
+    }
+
     if (!token) {
       router.replace("/sign-in");
       return;
@@ -19,7 +26,9 @@ export default function Magic() {
 
     const verify = async () => {
       try {
-        const res = await axios.post(`${API_BASE}/auth/verify-magic`, { token });
+        const res = await axios.post(`${API_BASE}/auth/verify-magic`, {
+          token,
+        });
 
         if (res.data.ok) {
           localStorage.setItem("jwt", res.data.token);

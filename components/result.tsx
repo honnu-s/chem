@@ -15,8 +15,7 @@ import { Button } from "@/components/ui/button"
 import {PieChart,Pie,Cell,Tooltip,Legend,ResponsiveContainer,} from "recharts";
 import {CircleCheckBig,Minus,TriangleAlert,} from "lucide-react";
 import { EachIng } from "./ui/eachIng";
-// process.env.NEXT_PUBLIC_API_URL ||
-const API_BASE =  "http://localhost:8080";
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
 
 function SearchFilterComponent({ onChange }: { onChange: (filters: { search: string; filter1: string; filter2: string }) => void }) {
@@ -180,7 +179,6 @@ function AlertBox({ bannedList = [] }: { bannedList: string[] }) {
               </span>
             ))}
           </div>
-          {/* Description text */}
           <p className="text-xs md:text-sm text-red-700 max-w-2xl">
             These ingredients have been banned in the European Union due to
             safety concerns. Please consult regulatory guidelines and consider
