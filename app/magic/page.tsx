@@ -1,10 +1,10 @@
+export const revalidate = false;   
 "use client";
 
 import { useEffect } from "react";
 import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
 
-// Use environment variable
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
 export default function Magic() {
@@ -14,7 +14,7 @@ export default function Magic() {
 
   useEffect(() => {
     if (!API_BASE) {
-      console.error("❌ NEXT_PUBLIC_API_BASE is NOT set");
+      console.error(" NEXT_PUBLIC_API_BASE is NOT set");
       router.replace("/sign-in");
       return;
     }
