@@ -1,7 +1,5 @@
 export const dynamic = "force-dynamic";
 
-"use client";
-
 import { Suspense } from "react";
 import MagicPage from "./magic-page";
 
