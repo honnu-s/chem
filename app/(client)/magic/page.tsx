@@ -1,4 +1,3 @@
-export const revalidate = false;   
 "use client";
 
 import { useEffect } from "react";
@@ -14,7 +13,7 @@ export default function Magic() {
 
   useEffect(() => {
     if (!API_BASE) {
-      console.error(" NEXT_PUBLIC_API_BASE is NOT set");
+      console.error("❌ NEXT_PUBLIC_API_BASE is NOT set");
       router.replace("/sign-in");
       return;
     }
