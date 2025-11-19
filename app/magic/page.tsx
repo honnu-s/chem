@@ -4,6 +4,12 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
 
+// ⛔ Prevent prerendering — FIXES THE ERROR
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
+
+// Use environment variable
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
 export default function Magic() {
@@ -12,7 +18,6 @@ export default function Magic() {
   const router = useRouter();
 
   useEffect(() => {
-    // Prevent build error if env missing
     if (!API_BASE) {
       console.error("❌ NEXT_PUBLIC_API_BASE is NOT set");
       router.replace("/sign-in");
