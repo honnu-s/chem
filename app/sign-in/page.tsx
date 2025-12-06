@@ -13,7 +13,7 @@ export default function Login() {
   const [linkSent, setLinkSent] = useState(false);
   const { data: session, status } = useSession();
   const router = useRouter();
-  const API_BASE='http://localhost:8080'
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
  useEffect(() => {
     const sendGoogleUserToBackend = async () => {
       if (session?.user?.email) {

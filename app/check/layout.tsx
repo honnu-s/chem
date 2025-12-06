@@ -1,4 +1,3 @@
-// app/layout.tsx
 import { Toaster } from "sonner";
 import { ReactNode } from "react";
 
