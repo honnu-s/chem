@@ -1,26 +1,35 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function useAuthGuard() {
   const router = useRouter();
+  const { status } = useSession(); 
   const [checked, setChecked] = useState(false);
 
   useEffect(() => {
-    const checkAuth = () => {
+    const check = () => {
       const jwt = localStorage.getItem("jwt");
-      console.log(jwt)
-      if (!jwt) {
-        router.replace("/sign-in");
+
+      if (status === "authenticated") {
+        setChecked(true);
         return;
       }
 
-      setChecked(true);
+      if (jwt) {
+        setChecked(true);
+        return;
+      }
+
+      if (status !== "loading") {
+        router.replace("/sign-in");
+      }
     };
 
-    setTimeout(checkAuth, 50);
-  }, [router]);
+    check();
+  }, [status, router]);
 
-  return checked; 
+  return checked;
 }

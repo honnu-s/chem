@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { useSearchParams, useRouter } from "next/navigation";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
 
 export default function MagicPage() {
   const params = useSearchParams();
@@ -24,17 +24,16 @@ export default function MagicPage() {
 
     const verify = async () => {
       try {
-        const res = await axios.post(`${API_BASE}/auth/verify-magic`, {
-          token,
-        });
+        const res = await axios.post(`${API_BASE}/auth/verify-magic`, { token });
 
-        if (res.data.ok) {
+        if (res.data?.ok && res.data.token) {
           localStorage.setItem("jwt", res.data.token);
-          router.replace("/check");
+          router.replace("/check"); // or "/"
         } else {
           router.replace("/sign-in");
         }
       } catch (err) {
+        console.error("magic verify error:", err);
         router.replace("/sign-in");
       }
     };

@@ -15,9 +15,13 @@ export function Navbar() {
   console.log(jwt)
 
   const handleLogout = () => {
-    localStorage.removeItem("jwt"); 
-    signOut({ redirect: false });  
-    router.replace("/sign-in");
+    localStorage.removeItem("jwt");
+
+   signOut({ redirect: false });
+
+  
+
+  window.location.reload();
   };
 
   useEffect(() => {
@@ -34,7 +38,7 @@ export function Navbar() {
     <div className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${show ? "translate-y-0" : "-translate-y-full"}`}>
       <nav className="backdrop-blur-md bg-white/30 shadow-md border-b border-white/20">
         <div className="flex items-center justify-between px-6 py-3">
-          <div className="text-2xl font-thin text-gray-900 tracking-wide">
+          <div className="text-lg md:text-2xl font-thin text-gray-900 tracking-wide">
             ChemGuard
           </div>
 
@@ -43,9 +47,9 @@ export function Navbar() {
               <>
                 <button
                   onClick={handleLogout}
-                  className="px-5 py-2 bg-emerald-600 text-white font-semibold  hover:bg-emerald-700 transition"
+                  className="text-xs md:text-base px-2 md:px-5 py-2 bg-emerald-600 text-white font-semibold  hover:bg-emerald-700 transition"
                 >
-                  Log Out
+                  Log-Out
                 </button>
 
                 <button

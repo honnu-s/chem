@@ -15,13 +15,13 @@ export function WhyEuStickySection() {
     description:
       "Many cosmetic products sold in India still use chemicals banned in the EU like Glow and Lovely BB Cream.",
     content: (
-      <div className="flex h-full w-full items-center justify-center bg-white">
+      <div className="flex flex-col md:flex-row h-full w-full items-center justify-center bg-white p-4">
         <Image
           src="/images/example-product.png"
           width={100}
           height={100}
           alt="Indian cosmetic label containing EU-banned ingredients"
-          className="object-contain"
+          className="object-contain max-h-[50vh] md:max-h-full"
         />
       </div>
     ),
@@ -31,13 +31,13 @@ export function WhyEuStickySection() {
     description:
       "Here’s a real example: a BB Cream widely sold in India lists 'Butylphenyl Methylpropional' and other restricted chemicals — banned under EU Annex II. ChemGuard flags such ingredients instantly to help users stay safe.",
     content: (
-      <div className="flex h-full w-full items-center justify-center bg-white">
+      <div className="flex flex-col md:flex-row h-full w-full items-center justify-center bg-white p-4">
         <Image
           src="/images/example-ing.png"
           width={300}
           height={300}
           alt="Indian Cream containing EU-banned chemicals"
-          className="object-cover"
+          className="object-contain max-h-[50vh] md:max-h-full"
         />
       </div>
     ),
@@ -47,13 +47,13 @@ export function WhyEuStickySection() {
     description:
       "This chemical 'Butylphenyl Methylpropional' is banned in the EU under Annex II. You can verify it on the official EU COSING website. ChemGuard helps you identify these chemicals easily.",
     content: (
-      <div className="flex flex-col h-full w-full items-center justify-center bg-white text-black p-6 text-center text-lg font-semibold">
+      <div className="flex flex-col md:flex-row h-full w-full items-center justify-center bg-white p-4 text-black p-6 text-center text-lg font-semibold">
         <Image
           src="/images/eu-proof.png"
           width={600}
           height={600}
           alt="EU banned chemical screenshot"
-          className="object-contain max-h-[70vh]"
+          className="object-contain max-h-[70vh] md:max-h-full"
         />
       </div>
     ),
