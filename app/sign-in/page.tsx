@@ -1,129 +1,123 @@
-"use client";
+const express = require("express");
+const router = express.Router();
+const User = require("../models/user");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+const jwt = require("jsonwebtoken");
 
-import { signIn, useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
-import axios from "axios";
-import { FcGoogle } from "react-icons/fc";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [linkSent, setLinkSent] = useState(false);
-  const { data: session, status } = useSession();
-  const router = useRouter();
+router.post("/google-login", async (req, res) => {
+  try {
+    const { email, name, image } = req.body;
 
-  useEffect(() => {
-    /**
-     * Called after NextAuth signs in with Google.
-     * Sends the Google user to your backend which returns your JWT.
-     */
-    const sendGoogleUserToBackend = async () => {
-      if (session?.user?.email) {
-        try {
-          const res = await axios.post(`${API_BASE}/auth/google-login`, {
-            email: session.user.email,
-            name: session.user.name,
-            image: session.user.image,
-            // optionally include googleId if you want
-            googleId: (session.user as any)?.id || undefined,
-          });
-
-          if (res.data?.ok && res.data.token) {
-            localStorage.setItem("jwt", res.data.token);
-            router.replace("/");
-          } else {
-            toast({ title: "Google login failed", variant: "destructive" });
-          }
-        } catch (err) {
-          console.error("Google backend login failed:", err);
-          toast({ title: "Google login failed", variant: "destructive" });
-        }
-      }
-    };
-
-    const storedToken = typeof window !== "undefined" ? localStorage.getItem("jwt") : null;
-
-    if (status === "authenticated") {
-      sendGoogleUserToBackend();
-    } else if (storedToken) {
-      // already logged in
-      router.replace("/");
-    }
-  }, [session, status, router]);
-
-  async function sendMagic() {
     if (!email) {
-      toast({ title: "Enter your email first" });
-      return;
+      return res.status(400).json({ error: "Email required" });
     }
 
-    setLoading(true);
-    try {
-      await axios.post(`${API_BASE}/auth/send-magic-link`, { email });
-      toast({ title: "Magic link sent! Check your inbox." });
-      setLinkSent(true);
-    } catch (err) {
-      console.error("sendMagic error:", err);
-      toast({ title: "Failed to send magic link", variant: "destructive" });
-    } finally {
-      setLoading(false);
-    }
-  }
+    let user = await User.findOne({ email });
 
-  if (linkSent) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md text-center">
-          <h1 className="text-2xl font-bold mb-4">Check Your Email</h1>
-          <p className="text-gray-700">
-            We’ve sent a magic login link to <strong>{email}</strong>. Click the link to sign in.
-          </p>
-        </div>
-      </div>
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        image,
+        provider: "google",
+        emailVerified: true,
+      });
+    }
+
+    const token = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
     );
+
+    res.json({ ok: true, token });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Google login failed" });
   }
+});
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md text-center">
-        <h1 className="text-2xl font-bold mb-6">Sign in</h1>
 
-        <button
-          onClick={() => signIn("google")}
-          className="w-full flex items-center justify-center gap-2 bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 mb-6"
-        >
-          <FcGoogle size={24} />
-          Sign in with Google
-        </button>
+router.post("/send-magic-link", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email required" });
 
-        <div className="my-6 flex items-center">
-          <div className="flex-grow h-px bg-gray-300" />
-          <span className="mx-3 text-gray-500">OR</span>
-          <div className="flex-grow h-px bg-gray-300" />
-        </div>
+    const rawToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(rawToken)
+      .digest("hex");
 
-        <input
-          type="email"
-          placeholder="Enter email to verify"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border-black border p-3 rounded-lg mb-4"
-        />
+    const expires = Date.now() + 15 * 60 * 1000;
 
-        <button
-          onClick={sendMagic}
-          disabled={loading}
-          className="w-full flex items-center justify-center gap-2 bg-emerald-800 text-white py-3 rounded-lg font-medium hover:bg-emerald-600"
-        >
-          {loading && <Loader2 className="animate-spin w-5 h-5" />}
-          {loading ? "Sending..." : "Verify Email"}
-        </button>
-      </div>
-    </div>
-  );
-}
+    let user = await User.findOne({ email });
+    if (!user) user = await User.create({ email });
+
+    user.magicToken = hashedToken;
+    user.magicTokenExpires = expires;
+    await user.save();
+
+    const magicUrl = `${process.env.FRONTEND_URL}/magic?token=${rawToken}`;
+
+    await transporter.sendMail({
+      to: email,
+      subject: "Sign in to ChemGuard",
+      html: `<a href="${magicUrl}">Click to sign in</a>`,
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to send magic link" });
+  }
+});
+
+
+router.post("/verify-magic", async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+
+    const user = await User.findOne({
+      magicToken: hashedToken,
+      magicTokenExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid or expired token" });
+    }
+
+    user.magicToken = undefined;
+    user.magicTokenExpires = undefined;
+    user.emailVerified = true;
+    await user.save();
+
+    const jwtToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({ ok: true, token: jwtToken });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Verification failed" });
+  }
+});
+
+module.exports = router;
