@@ -23,10 +23,9 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("jwt");
         const res = await axios.get(`${API_BASE}/ingredient-stats`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+            withCredentials: true, 
+          });
         if (res.data.ok) setData(res.data.stats);
       } catch (err) {
         console.error(err);

@@ -62,7 +62,6 @@ function SearchFilterComponent({ onChange }: { onChange: (filters: { search: str
     <circle cx="11" cy="11" r="8"></circle>
   </svg>
 
-  {/* Input */}
   <input
     type="text"
     placeholder="Search by chemical name"
@@ -73,7 +72,6 @@ function SearchFilterComponent({ onChange }: { onChange: (filters: { search: str
 </div>
 
 
-      {/* Filter Section */}
       <div className="w-auto flex flex-col md:flex-row justify-start md:items-center gap-4">
         <div className="flex items-center gap-2">
 <svg
@@ -94,7 +92,6 @@ function SearchFilterComponent({ onChange }: { onChange: (filters: { search: str
 
           <span className="text-xs md:text-lg text-gray-600 font-semibold">Filters:</span>
 </div>
-        {/* Filter 1 */}
         <Select value={filter1} onValueChange={setFilter1}>
           <SelectTrigger className="w-[150px] md:w-[180px] border-none bg-gray-100 ">
             <SelectValue placeholder="Select Option 1" />
@@ -144,7 +141,6 @@ function AlertBox({ bannedList = [] }: { bannedList: string[] }) {
       role="alert"
       className="w-full md:w-[70%] my-6 px-1 md:px-4 py-3 text-sm   border-2 border-red-200 bg-red-50 text-card-foreground"
     >
-      {/* Description content */}
       <div className="col-start-2 grid   text-sm text-center">
         <div className="flex flex-col items-center gap-3">
           <div className="flex items-center text-center">
@@ -167,7 +163,6 @@ function AlertBox({ bannedList = [] }: { bannedList: string[] }) {
               {len} ingredients banned in the EU detected
             </span>
           </div>
-          {/* Badges */}
           <div className="flex flex-wrap justify-center gap-2">
             {bannedList.map((chem) => (
               <span
@@ -300,7 +295,6 @@ export function Result(){
     return () => clearInterval(interval);
   }, []);
 
-  // backend req
     useEffect(() => {
   const fetchResult = async () => {
     setError(null);
@@ -331,11 +325,9 @@ const token = localStorage.getItem("jwt");
       const res = await axios.post(
     `${API_BASE}/check-ingredients`,
     { ingredients: inputs },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
+     {
+    withCredentials: true, 
+  }
   );
 
       console.log(res.data.AI)

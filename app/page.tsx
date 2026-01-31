@@ -188,11 +188,11 @@ Know What&apos;s Inside Your Cosmetics
 
 
        
-<section ref={refAnim} className="bg_square-pattren md:p-2">
+<section ref={refAnim} className="bg_square-pattren md:p-2 ">
   <h1 className={`text-center text-3xl  font-bold mb-12 transition-all duration-1000 ${
       animInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
     }`}>How It Works</h1>
-  <div className={`flex flex-col md:flex-row w-full h-full gap-8 transition-all duration-1000 delay-200 ${
+  <div className={`flex mb-4 flex-col md:flex-row w-full h-full gap-8 transition-all duration-1000 delay-200 ${
       animInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
     }`}>
     

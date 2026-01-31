@@ -3,26 +3,24 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-
+import { useSession } from "next-auth/react";
+import axios from "axios";
 export function Navbar() {
   const [show, setShow] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const router = useRouter();
-  
-  const jwt = typeof window !== "undefined" 
-    ? localStorage.getItem("jwt")
-    : null;
-  console.log(jwt)
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
-  const handleLogout = () => {
-    localStorage.removeItem("jwt");
-
-   signOut({ redirect: false });
+const { status } = useSession();
+const isLoggedIn = status === "authenticated";
 
   
 
-  window.location.reload();
-  };
+  const handleLogout = async () => {
+  await axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true });
+  await signOut({ redirect: true, callbackUrl: "/sign-in" });
+};
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,7 +41,7 @@ export function Navbar() {
           </div>
 
           <div className="flex items-center gap-4">
-            {jwt ? (
+            {isLoggedIn ? (
               <>
                 <button
                   onClick={handleLogout}
