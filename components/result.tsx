@@ -286,6 +286,8 @@ export function Result(){
     "Almost done..."
   ];
   const [msgIndex, setMsgIndex] = useState(0);
+       const token = localStorage.getItem("auth_token");
+
 
 
   useEffect(() => {
@@ -321,13 +323,17 @@ export function Result(){
 
 
     try {
-      const res = await axios.post(
-    `${API_BASE}/check-ingredients`,
-    { ingredients: inputs },
-     {
-    withCredentials: true, 
+
+const res = await axios.post(
+  `${API_BASE}/check-ingredients`,
+  { ingredients: inputs },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`, 
+    },
   }
-  );
+);
+
 
       const results = res.data.AI || [];
       setResultData(results);

@@ -2,23 +2,24 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
-import { useSession } from "next-auth/react";
 import axios from "axios";
+
 export function Navbar() {
   const [show, setShow] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
-const { status } = useSession();
-const isLoggedIn = status === "authenticated";
+  useEffect(() => {
+    const token = localStorage.getItem("auth_token");
+    setIsLoggedIn(!!token);
+  }, []);
 
-  
-
-  const handleLogout = async () => {
-  await axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true });
-  await signOut({ redirect: true, callbackUrl: "/sign-in" });
+  const handleLogout = () => {
+  localStorage.removeItem("auth_token");
+  setIsLoggedIn(false);
+  router.push("/sign-in");
 };
 
 
@@ -45,7 +46,7 @@ const isLoggedIn = status === "authenticated";
               <>
                 <button
                   onClick={handleLogout}
-                  className="text-xs md:text-base px-2 md:px-5 py-2 bg-emerald-600 text-white font-semibold  hover:bg-emerald-700 transition"
+                  className="text-xs md:text-base px-2 md:px-5 py-2 bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
                 >
                   Log-Out
                 </button>
@@ -61,7 +62,7 @@ const isLoggedIn = status === "authenticated";
               <>
                 <button
                   onClick={() => router.push("/sign-in")}
-                  className="px-5 py-2 bg-emerald-600 text-white font-semibold  hover:bg-emerald-700 transition"
+                  className="px-5 py-2 bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
                 >
                   Sign In
                 </button>

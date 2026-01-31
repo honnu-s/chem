@@ -19,38 +19,35 @@ export default function Login() {
   const router = useRouter();
 
   useEffect(() => {
-  
-
-  if (
-    status === "authenticated" &&
-    session?.user?.email &&
-    !googleSynced
-  ) {
+  if (status === "authenticated" && session?.user?.email && !googleSynced) {
     setGoogleSynced(true);
 
-    axios.post(
-      `${API_BASE}/auth/google-login`,
-      {
+    axios
+      .post(`${API_BASE}/auth/google-login`, {
         email: session.user.email,
         name: session.user.name,
         image: session.user.image,
-      },
-      { withCredentials: true }
-    )
-    .then(() => router.replace("/"))
-    .catch((error) => {
-      setGoogleSynced(false);
-      setLoading(false);
+      })
+      .then((res) => {
+        // ✅ Save JWT from backend response to localStorage
+        const token = res.data.token; // make sure backend sends { token: "..." }
+        localStorage.setItem("auth_token", token);
 
-      const message =
-    error?.response?.data?.error ||
-    
-    "Google sign-in failed. Please try again.";
+        router.replace("/");
+      })
+      .catch((error) => {
+        setGoogleSynced(false);
+        setLoading(false);
 
-  toast.error(message);
-    });
+        const message =
+          error?.response?.data?.error ||
+          "Google sign-in failed. Please try again.";
+
+        toast.error(message);
+      });
   }
 }, [status, session, googleSynced, router]);
+
 
 
   return (
