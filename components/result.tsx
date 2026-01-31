@@ -318,7 +318,6 @@ export function Result(){
       }
     }
 
-const token = localStorage.getItem("jwt");
 
 
     try {
@@ -330,7 +329,6 @@ const token = localStorage.getItem("jwt");
   }
   );
 
-      console.log(res.data.AI)
       const results = res.data.AI || [];
       setResultData(results);
 
