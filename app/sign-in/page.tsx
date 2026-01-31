@@ -29,8 +29,7 @@ export default function Login() {
         image: session.user.image,
       })
       .then((res) => {
-        // ✅ Save JWT from backend response to localStorage
-        const token = res.data.token; // make sure backend sends { token: "..." }
+        const token = res.data.token; 
         localStorage.setItem("auth_token", token);
 
         router.replace("/");
