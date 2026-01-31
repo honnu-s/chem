@@ -2,25 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-
+import { useSession ,signOut} from "next-auth/react";
 export function Navbar() {
   const [show, setShow] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { data: session, status } = useSession();
 
   const router = useRouter();
-  const pathname = usePathname(); // 👈 KEY
 
-  // 🔥 ALWAYS sync auth state on route change
-  useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-    setIsLoggedIn(!!token);
-  }, [pathname]); // 👈 runs on every navigation
+  const isLoggedIn = status === "authenticated";
 
-  const handleLogout = () => {
+  const handleLogout = async() => {
     localStorage.removeItem("auth_token");
-    setIsLoggedIn(false);
-    router.replace("/sign-in"); // replace is safer than push
+    await signOut({ redirect: false });
+    router.replace("/sign-in"); 
   };
 
   useEffect(() => {

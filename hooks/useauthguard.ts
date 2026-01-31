@@ -1,19 +1,23 @@
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+"use client";
 
-export default function useAuthGuard() {
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+
+export default function useAuthGuard(): boolean {
+  const { status } = useSession();
   const router = useRouter();
-  const [ready, setReady] = useState(false);
+
+  const hasRedirected = useRef(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-
-    if (!token) {
+    if (status === "unauthenticated" && !hasRedirected.current) {
+      hasRedirected.current = true;
       router.replace("/sign-in");
-    } else {
-      setReady(true);
     }
-  }, [router]);
+  }, [status, router]);
 
-  return ready;
+  if (status === "authenticated") return true;
+
+  return false;
 }

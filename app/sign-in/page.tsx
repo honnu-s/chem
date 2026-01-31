@@ -13,39 +13,37 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
-  const [googleSynced, setGoogleSynced] = useState(false);
-
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  useEffect(() => {
-  if (status === "authenticated" && session?.user?.email && !googleSynced) {
-    setGoogleSynced(true);
+useEffect(() => {
+  if (status !== "authenticated") return;
 
-    axios
-      .post(`${API_BASE}/auth/google-login`, {
+  // 🔒 Prevent infinite redirect
+  const existingToken = localStorage.getItem("auth_token");
+  if (existingToken) {
+    router.replace("/");
+    return;
+  }
+
+  const syncBackend = async () => {
+    try {
+      const res = await axios.post(`${API_BASE}/auth/google-login`, {
         email: session.user.email,
         name: session.user.name,
         image: session.user.image,
-      })
-      .then((res) => {
-        const token = res.data.token; 
-        localStorage.setItem("auth_token", token);
-
-        router.replace("/");
-      })
-      .catch((error) => {
-        setGoogleSynced(false);
-        setLoading(false);
-
-        const message =
-          error?.response?.data?.error ||
-          "Google sign-in failed. Please try again.";
-
-        toast.error(message);
       });
-  }
-}, [status, session, googleSynced, router]);
+
+      localStorage.setItem("auth_token", res.data.token);
+      router.replace("/");
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  syncBackend();
+}, [status, session, router]);
+
 
 
 
