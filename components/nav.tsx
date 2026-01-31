@@ -1,27 +1,26 @@
-"use client";
-
+'use client';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 
 export function Navbar() {
   const [show, setShow] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
+  // keep state in sync with localStorage
   useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-    setIsLoggedIn(!!token);
+    const checkLogin = () => setIsLoggedIn(!!localStorage.getItem("auth_token"));
+    checkLogin();
+    window.addEventListener("storage", checkLogin);
+    return () => window.removeEventListener("storage", checkLogin);
   }, []);
 
   const handleLogout = () => {
-  localStorage.removeItem("auth_token");
-  setIsLoggedIn(false);
-  router.push("/sign-in");
-};
-
+    localStorage.removeItem("auth_token");
+    setIsLoggedIn(false);
+    router.replace("/sign-in"); // safer than push
+  };
 
   useEffect(() => {
     const handleScroll = () => {
