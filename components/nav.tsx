@@ -1,25 +1,26 @@
-'use client';
+"use client";
+
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export function Navbar() {
   const [show, setShow] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const router = useRouter();
 
-  // keep state in sync with localStorage
+  const router = useRouter();
+  const pathname = usePathname(); // 👈 KEY
+
+  // 🔥 ALWAYS sync auth state on route change
   useEffect(() => {
-    const checkLogin = () => setIsLoggedIn(!!localStorage.getItem("auth_token"));
-    checkLogin();
-    window.addEventListener("storage", checkLogin);
-    return () => window.removeEventListener("storage", checkLogin);
-  }, []);
+    const token = localStorage.getItem("auth_token");
+    setIsLoggedIn(!!token);
+  }, [pathname]); // 👈 runs on every navigation
 
   const handleLogout = () => {
     localStorage.removeItem("auth_token");
     setIsLoggedIn(false);
-    router.replace("/sign-in"); // safer than push
+    router.replace("/sign-in"); // replace is safer than push
   };
 
   useEffect(() => {
@@ -28,12 +29,17 @@ export function Navbar() {
       setShow(current < lastScrollY || current <= 50);
       setLastScrollY(current);
     };
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
   return (
-    <div className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${show ? "translate-y-0" : "-translate-y-full"}`}>
+    <div
+      className={`fixed top-0 left-0 w-full z-50 transition-transform duration-300 ${
+        show ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
       <nav className="backdrop-blur-md bg-white/30 shadow-md border-b border-white/20">
         <div className="flex items-center justify-between px-6 py-3">
           <div className="text-lg md:text-2xl font-thin text-gray-900 tracking-wide">
