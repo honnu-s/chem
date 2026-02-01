@@ -16,13 +16,11 @@ export function Analyze() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Handle text input
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value);
     setError("");
   };
 
-  // Handle manual submit
   const handleSubmit = () => {
 
     const ingredientArray = [];
@@ -42,7 +40,6 @@ for (const raw of inputText.split(",")) {
     router.push("/result");
   };
 
-  // Handle image upload
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -61,14 +58,12 @@ for (const raw of inputText.split(",")) {
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  // Remove uploaded image
   const handleRemoveImage = () => {
     setImageFile(null);
     setPreviewUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // OCR analyze image
   const handleAnalyzeImage = async () => {
     if (!imageFile) return;
 
@@ -133,7 +128,6 @@ for (const raw of inputText.split(",")) {
             />
           </div>
 
-          {/* Image Upload */}
           <div className="w-full md:w-1/3">
             <label className=" flex block text-gray-800 font-bold mb-2">
               <Upload className="w-5 h-5 text-emerald-600 mr-2" /> 
