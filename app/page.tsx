@@ -138,7 +138,7 @@ Know What&apos;s Inside Your Cosmetics
 
               </h1>
               <p
-                className={`md:text-lg text-sm text-gray-700 mb-6 transition-all duration-1000 ${
+                className={`md:text-lg text-xs text-gray-700 mb-6 transition-all duration-1000 ${
                   headinView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-5"
                 }`}
               >
@@ -148,7 +148,7 @@ Know What&apos;s Inside Your Cosmetics
               </p>
               <button
                 onClick={() => router.push("/check")}
-                className={`w-fit shadow-[6px_6px_0px_black] bg-gradient-to-r from-emerald-700 to-emerald-500 hover:from-emerald-600 hover:to-emerald-400 text-white font-semibold py-3 px-8 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-700 ${
+                className={`w-fit shadow-[6px_6px_0px_black] bg-gradient-to-r from-emerald-700 to-emerald-500 hover:from-emerald-600 hover:to-emerald-400 text-white font-semibold py-3 px-4 md:px-8 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-700 ${
                   headinView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
                 }`}
               >

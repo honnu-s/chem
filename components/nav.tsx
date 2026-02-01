@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useSession ,signOut} from "next-auth/react";
 export function Navbar() {
   const [show, setShow] = useState(true);
@@ -62,7 +62,7 @@ export function Navbar() {
               <>
                 <button
                   onClick={() => router.push("/sign-in")}
-                  className="px-5 py-2 bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
+                  className="px-2 md:px-5 py-2 bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
                 >
                   Sign In
                 </button>
