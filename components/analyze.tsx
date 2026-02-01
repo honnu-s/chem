@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 
 export function Analyze() {
@@ -15,7 +16,7 @@ export function Analyze() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
+  const [analyze,setAnalyze]=useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value);
     setError("");
@@ -29,9 +30,11 @@ for (const raw of inputText.split(",")) {
   if (trimmed) ingredientArray.push(trimmed);
 }
     if (ingredientArray.length === 0) {
+      setAnalyze(false)
       toast.error("please provide input")
       return;
     }
+    setAnalyze(true)
 
     localStorage.setItem(
       "analyzeInputs",
@@ -192,7 +195,7 @@ for (const raw of inputText.split(",")) {
         <div className="flex justify-center mt-6">
           <button
             onClick={handleSubmit}
-            className="flex shadow-[4px_4px_0px_black] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-200 items-center text-base bg-emerald-600 text-white font-semibold py-3 px-2 md:px-6 rounded-xl  hover:bg-emerald-700 transition"
+            className={`flex  shadow-[4px_4px_0px_black] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-200 items-center text-base bg-emerald-600 text-white font-semibold py-3 px-2 md:px-6 rounded-xl  hover:bg-emerald-700 transition`}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -209,7 +212,8 @@ for (const raw of inputText.split(",")) {
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            Analyze Ingredients
+            {analyze?<><Loader2 className="h-5 w-5 animate-spin pl-2" />Analyzing
+</>:<>Analyze ingredients</>}
           </button>
         </div>
       </div>
