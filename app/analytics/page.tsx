@@ -16,17 +16,13 @@ import {
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
-const apiToken = localStorage.getItem("jwt")
 export default function Dashboard() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await axios.get(`${API_BASE}/ingredient-stats`, {
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    }},);
+        const res = await axios.get(`${API_BASE}/ingredient-stats`);
         if (res.data.ok) setData(res.data.stats);
       } catch (err) {
         console.error(err);
@@ -54,7 +50,7 @@ export default function Dashboard() {
   };
 
   const options = {
-    indexAxis: "y", // <--- MAKES IT HORIZONTAL
+    indexAxis: "y", 
     responsive: true,
     plugins: {
       legend: { display: false },
