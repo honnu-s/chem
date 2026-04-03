@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { X, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
 import { Loader2 } from "lucide-react";
@@ -16,32 +16,31 @@ export function Analyze() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const [analyze,setAnalyze]=useState(false);
+  const [analyze, setAnalyze] = useState(false);
+  const [exampleOpen, setExampleOpen] = useState(false);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value);
     setError("");
   };
 
-  const handleSubmit = () => {
-
-    const ingredientArray = [];
-for (const raw of inputText.split(",")) {
-  const trimmed = raw.trim();
-  if (trimmed) ingredientArray.push(trimmed);
-}
-    if (ingredientArray.length === 0) {
-      setAnalyze(false)
-      toast.error("please provide input")
-      return;
-    }
-    setAnalyze(true)
-
-    localStorage.setItem(
-      "analyzeInputs",
-      JSON.stringify({ ingredients: ingredientArray })
-    );
+ const handleSubmit = () => {
+  const trimmed = inputText.trim();
+  if (!trimmed) {
+    toast.error("Please provide ingredients input");
+    return;
+  }
+  setAnalyze(true);
+  localStorage.setItem(
+    "analyzeInputs",
+    JSON.stringify({ ingredients: trimmed })
+  );
+  try {
     router.push("/result");
-  };
+  } catch (err) {
+    setAnalyze(false);
+  }
+};
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -86,15 +85,13 @@ for (const raw of inputText.split(",")) {
       if (data.IsErroredOnProcessing) {
         throw new Error(data.ErrorMessage?.[0] || "OCR failed");
       }
-      console.log(data)
+      console.log(data);
       const text = data.ParsedResults?.[0]?.ParsedText || "";
       setInputText(text);
 
       toast.success("Text extracted successfully!");
-
     } catch (err) {
-        toast.error("Could not extract text from image.");
-
+      toast.error("Could not extract text from image.");
     } finally {
       setLoading(false);
     }
@@ -120,7 +117,7 @@ for (const raw of inputText.split(",")) {
 
         <div className="flex flex-col md:flex-row gap-6">
           <div className="flex-1">
-            <label className="flex block text-gray-800 font-bold mb-2">
+            <label className="flex block text-xl text-gray-800 font-bold mb-2">
               Ingredients List
             </label>
             <textarea
@@ -129,16 +126,46 @@ for (const raw of inputText.split(",")) {
               className="w-full h-48 p-3 rounded-xl border border-black focus:border-white focus:ring-2 focus:ring-emerald-400 outline-none text-gray-800"
               placeholder="Paste ingredients here... (e.g., Aqua, Glycerin, etc.)"
             />
+            <div className="flex justify-center mt-6">
+          <button
+            onClick={handleSubmit}
+            disabled={analyze}
+className={`flex shadow-[4px_4px_0px_black] ${!analyze ? 'hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] hover:bg-emerald-700' : 'opacity-60 cursor-not-allowed'} transition-all duration-200 items-center text-base bg-emerald-600 text-white font-semibold py-3 px-2 md:px-6 transition`}          >
+            { !analyze && <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="lucide lucide-search mr-2"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>}
+            {analyze ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin pl-2" />
+                Analyzing.....
+              </>
+            ) : (
+              <>Analyze ingredients</>
+            )}
+          </button>
+        </div>
           </div>
 
           <div className="w-full md:w-1/3">
             <label className=" flex block text-gray-800 font-bold mb-2">
-              <Upload className="w-5 h-5 text-emerald-600 mr-2" /> 
+              <Upload className="w-5 h-5 text-emerald-600 mr-2" />
               Upload Label Photo
             </label>
             <input
-               id="ingredientInput"
-  placeholder="upload"
+              id="ingredientInput"
+              placeholder="upload"
               type="file"
               accept="image/*"
               ref={fileInputRef}
@@ -176,47 +203,79 @@ for (const raw of inputText.split(",")) {
               {loading ? "Analyzing..." : "Extract Ingredients"}
             </button>
 
-            {!imageFile && (<>
-              <p className="mt-2 text-sm text-gray-600 bg-emerald-50 p-2 rounded-lg">
-                <span className="font-bold">Note:</span> Upload only the
-                ingredient list. Avoid brand logos or unrelated text , Similar to below.
-               
-              </p>
-              
-              <div className="md:relative  md:w-full md:max-w-sm md:h-2 md:mx-auto py-1"><Image src="/images/ingr.jpg" width={170} alt="ingr"    height={0}    className="object-contain rounded" />
-</div>
-              </>
-            )}
+            {!imageFile && (
+              <div className="mt-3">
+                <p className="text-sm text-gray-600 bg-emerald-50 p-2 rounded-lg">
+                  <span className="font-bold">Note:</span> Upload only the
+                  ingredient list. Avoid brand logos or unrelated text.
+                </p>
 
+                <div className="mt-2 flex flex-col items-start gap-1">
+                  <span className="text-xs font-semibold text-emerald-700 tracking-wide uppercase">
+                    Example
+                  </span>
+                  <button
+                    onClick={() => setExampleOpen(true)}
+                    className="group relative w-20 h-20 rounded-lg overflow-hidden border-2 border-emerald-300 shadow-[2px_2px_0px_black] hover:shadow-[3px_3px_0px_#059669] hover:border-emerald-500 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                    aria-label="View example ingredient label"
+                  >
+                    <Image
+                      src="/images/ingr.jpg"
+                      alt="Example ingredient label"
+                      fill
+                      className="object-cover"
+                    />
+                    <span className="absolute inset-0 bg-emerald-900/40 opacity-0 group-hover:opacity-100 transition-opacity duration-150 flex items-center justify-center">
+                      <ZoomIn size={20} className="text-white drop-shadow" />
+                    </span>
+                  </button>
+                  <span className="text-xs text-gray-400">Click to enlarge</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Submit Button */}
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={handleSubmit}
-            className={`flex  shadow-[4px_4px_0px_black] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-200 items-center text-base bg-emerald-600 text-white font-semibold py-3 px-2 md:px-6 rounded-xl  hover:bg-emerald-700 transition`}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-search mr-2"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            {analyze?<><Loader2 className="h-5 w-5 animate-spin pl-2" />Analyzing
-</>:<>Analyze ingredients</>}
-          </button>
-        </div>
+        
       </div>
+
+      {exampleOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4"
+          onClick={() => setExampleOpen(false)}
+        >
+          <div
+            className="relative bg-white rounded-2xl shadow-[8px_8px_0px_black] p-4 max-w-sm w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-bold text-emerald-700 uppercase tracking-wide">
+                Example — Ingredient Label
+              </span>
+              <button
+                onClick={() => setExampleOpen(false)}
+                className="p-1 rounded-lg bg-gray-100 hover:bg-red-100 hover:text-red-600 transition-colors shadow-[2px_2px_0px_black]"
+                aria-label="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="relative w-full rounded-xl overflow-hidden border border-emerald-200" style={{ aspectRatio: "4/3" }}>
+              <Image
+                src="/images/ingr.jpg"
+                alt="Example ingredient label"
+                fill
+                className="object-contain"
+              />
+            </div>
+
+            <p className="mt-3 text-xs text-gray-500 text-center">
+              Upload a photo that looks like this — just the ingredient list, no logos.
+            </p>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

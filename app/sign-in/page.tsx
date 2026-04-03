@@ -16,35 +16,34 @@ export default function Login() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-useEffect(() => {
-  if (status !== "authenticated") return;
+  useEffect(() => {
+    if (status !== "authenticated" || !session?.user?.email) return;
 
-  // 🔒 Prevent infinite redirect
-  const existingToken = localStorage.getItem("auth_token");
-  if (existingToken) {
-    router.replace("/");
-    return;
-  }
+    const syncBackend = async () => {
+      try {
+        
+        const res = await axios.post(`${API_BASE}/auth/google-login`, {
+          email: session.user.email,
+          name: session.user.name,
+          image: session.user.image,
+        });
 
-  const syncBackend = async () => {
-    try {
-      const res = await axios.post(`${API_BASE}/auth/google-login`, {
-        email: session.user.email,
-        name: session.user.name,
-        image: session.user.image,
-      });
+        if (res.data.token) {
+          localStorage.setItem("auth_token", res.data.token);
+          router.replace("/");
+        } else {
+          toast.error("Authentication failed. Please try again.");
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Failed to connect to the server. Please try again.");
+        setLoading(false);
+      }
+    };
 
-      localStorage.setItem("auth_token", res.data.token);
-      router.replace("/");
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  syncBackend();
-}, [status, session, router]);
-
-
+    syncBackend();
+  }, [status, session, router]);
 
 
   return (
@@ -59,22 +58,22 @@ useEffect(() => {
             onClick={async () => {
   try {
     setLoading(true);
-    await signIn("google");
+    await signIn("google", { redirect: false });
   } catch {
     setLoading(false);
     toast.error("Google authentication failed");
   }
 }}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2
+            className={`w-full flex items-center justify-center gap-2
               bg-gradient-to-r from-emerald-700 to-emerald-600
-              hover:from-emerald-600 hover:to-emerald-400
-              text-white py-3 rounded-lg font-medium mb-6"
+            ${!loading ? ' hover:bg-emerald-700' : 'opacity-60 cursor-not-allowed'}
+              text-white py-3 rounded-lg font-medium mb-6`}
           >
             {loading ? (
               <>
                 <Loader2 className="h-5 w-5 animate-spin" />
-                Signing in
+                Signing in...
               </>
             ) : (
               <>

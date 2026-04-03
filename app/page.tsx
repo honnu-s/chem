@@ -6,298 +6,469 @@ import Image from "next/image";
 import { useInView } from 'react-intersection-observer';
 import { useRouter } from "next/navigation";
 import { LightRays } from "@/components/ui/light-rays";
-import { StickyScroll } from "@/components/ui/sticky-scroll-reveal";
 
-export function WhyEuStickySection() {
-  const content = [
-  {
-    title: "India’s Reality",
-    description:
-      "Many cosmetic products sold in India still use chemicals banned in the EU like Glow and Lovely BB Cream.",
-    content: (
-      <div className="flex flex-col md:flex-row h-full w-full items-center justify-center bg-white p-4">
-        <Image
-          src="/images/example-product.png"
-          width={100}
-          height={100}
-          alt="Indian cosmetic label containing EU-banned ingredients"
-          className="object-contain max-h-[50vh] md:max-h-full"
-        />
-      </div>
-    ),
-  },
-  {
-    title: "Example: Popular Product",
-    description:
-      "Here’s a real example: a BB Cream widely sold in India lists 'Butylphenyl Methylpropional' and other restricted chemicals — banned under EU Annex II. ChemGuard flags such ingredients instantly to help users stay safe.",
-    content: (
-      <div className="flex flex-col md:flex-row h-full w-full items-center justify-center bg-white p-4">
-        <Image
-          src="/images/example-ing.png"
-          width={300}
-          height={300}
-          alt="Indian Cream containing EU-banned chemicals"
-          className="object-contain max-h-[50vh] md:max-h-full"
-        />
-      </div>
-    ),
-  },
-  {
-    title: "Proof on EU Cosing Website",
-    description:
-      "This chemical 'Butylphenyl Methylpropional' is banned in the EU under Annex II. You can verify it on the official EU COSING website. ChemGuard helps you identify these chemicals easily.",
-    content: (
-      <div className="flex flex-col md:flex-row h-full w-full items-center justify-center bg-white p-4 text-black p-6 text-center text-lg font-semibold">
-        <Image
-          src="/images/eu-proof.png"
-          width={600}
-          height={600}
-          alt="EU banned chemical screenshot"
-          className="object-contain max-h-[70vh] md:max-h-full"
-        />
-      </div>
-    ),
-  },
-  {
-    title: "ChemGuard Overview",
-    description: "ChemGuard instantly detects banned and restricted chemicals in your cosmetics for safer choices.",
-    content: (
-      <div className="flex h-full w-full items-center justify-center bg-white text-black text-lg font-semibold">
-        ChemGuard helps you stay safe by highlighting harmful ingredients in everyday products.
-      </div>
-    ),
-  },
-];
-
+function FadeIn({
+  children,
+  delay = 0,
+  className = "",
+  direction = "up",
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  direction?: "up" | "left" | "right";
+}) {
+  const { ref, inView } = useInView({ triggerOnce: true, threshold: 0.1 });
+  const transform = {
+    up: inView ? "translateY(0)" : "translateY(28px)",
+    left: inView ? "translateX(0)" : "translateX(-28px)",
+    right: inView ? "translateX(0)" : "translateX(28px)",
+  }[direction];
 
   return (
-    <section
-      id="why-eu"
-      className="relative  w-full bg-white flex flex-col items-center justify-center overflow-hidden"
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms`,
+        opacity: inView ? 1 : 0,
+        transform,
+      }}
     >
-      <div className="mb-12 text-center">
-          <h2 className="text-3xl font-bold my-4 ">
-            Why EU Standards?
-          </h2>
-          <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed">
-            The European Union enforces the world’s most comprehensive cosmetic safety
-            laws. Many everyday products in India still include chemicals banned in
-            Europe — that’s why ChemGuard aligns with EU Annex II & III to ensure
-            ingredient transparency and consumer safety.
+      {children}
+    </div>
+  );
+}
+
+function Hero() {
+  const router = useRouter();
+  const { ref, inView } = useInView({ triggerOnce: true });
+  const sectionRef = useRef(null);
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start start", "end start"] });
+  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
+  const yImage = useTransform(scrollYProgress, [0, 1], ["0%", "25%"]);
+
+  return (
+    <section ref={sectionRef} className="relative overflow-hidden min-h-screen">
+      <LightRays color="#d0ffe6ff" speed={4} />
+
+      <div className="relative z-10 max-w-7xl mx-auto px-6 flex items-center min-h-screen gap-12">
+        {/* Text */}
+        <motion.div ref={ref} style={{ y: yText }} className="flex-1 flex flex-col justify-center">
+         
+          <h1
+            className={`text-4xl md:text-6xl font-extrabold text-gray-900 leading-[1.08] tracking-tight mb-5 transition-all duration-1000 delay-100 ${inView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"}`}
+          >
+            Know exactly what&apos;s{" "}
+            <span className="relative inline-block">
+              <span className="relative z-10 text-emerald-600">on your skin.</span>
+              <span className="absolute bottom-1 left-0 w-full h-2 bg-emerald-100 -z-0" />
+            </span>
+          </h1>
+
+          <p
+            className={`text-base md:text-lg text-gray-600 mb-8 max-w-xl leading-relaxed transition-all duration-1000 delay-200 ${inView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-6"}`}
+          >
+            ChemGuard checks every ingredient in your cosmetic against EU safety law —
+            flagging banned chemicals, explaining health effects, and rating environmental impact.
+            In seconds.
           </p>
-        </div>
-      <div className="w-full min-h-screen max-w-6xl bg-white" >
-  <StickyScroll 
-    content={content} 
-    contentClassName="bg-white text-black" 
-  />
-</div>
+
+          <div className={`flex flex-wrap items-center gap-4 transition-all duration-1000 delay-300 ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`}>
+            <button
+              onClick={() => router.push("/check")}
+              className="bg-gray-900 text-white font-bold py-3.5 px-8 shadow-[4px_4px_0px_#10b981] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-200 text-sm"
+            >
+              Analyse Your Product →
+            </button>
+          </div>
+        </motion.div>
+
+        {/* Image */}
+        <motion.div style={{ y: yImage }} className="hidden md:flex flex-shrink-0 justify-center items-center mr-16">
+          <div className="relative">
+            <div className="absolute inset-0  translate-x-3 translate-y-3" />
+            <Image
+              src="/images/home.png"
+              alt="ChemGuard ingredient analysis"
+              width={240}
+              height={240}
+              className="relative z-10"
+            />
+          </div>
+        </motion.div>
+      </div>
     </section>
   );
-};
+}
 
+function TrustBar() {
+  const stats = [
+    { number: "1,700+", label: "Chemicals banned by EU" },
+    { number: "~11", label: "Banned by US FDA" },
+    { number: "7,000+", label: "Ingredients in our database" },
+    { number: "<5s", label: "For a full ingredient report" },
+  ];
 
-
- 
-export default function Home() {
-  const router=useRouter();
-  const { ref:refH, inView:headinView } = useInView({ triggerOnce: true });
-  const { ref:refd, inView:dinView } = useInView({ triggerOnce: true, threshold: 0.2 });
-  const { ref: refAnim, inView: animInView } = useInView({ triggerOnce: true, threshold: 0.2 });
-   const sectionRef = useRef(null);
-   const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start start", "end start"],
-  });
-
-
-  const yImage = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const yText = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
-
-  
   return (
-<><div><Navbar/>
-<div>
-        <Navbar />
-        <section ref={sectionRef} className="relative overflow-hidden">
-          <LightRays  color="#d0ffe6ff" 
-          speed={4} />
-          <div className="flex h-screen justify-center p-4 max-w-7xl bg-white p-8 mx-auto">
-            
-            <motion.div
-              ref={refH}
-              style={{ y: yText }}
-              className="w-7/10 flex flex-col justify-center z-10"
-            >
-              <h1
-                className={`md:text-6xl text-3xl font-extrabold mb-6 transition-all duration-1000 ${
-                  headinView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-5"
-                }`}
-              >
-Know What&apos;s Inside Your Cosmetics
+    <section className="border-t border-b border-gray-200 bg-white py-10 px-6">
+      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+        {stats.map((s, i) => (
+          <FadeIn key={s.label} delay={i * 80}>
+            <div className="flex flex-col gap-1 border-l-2 border-emerald-400 pl-4">
+              <span className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-none">
+                {s.number}
+              </span>
+              <span className="text-xs text-gray-500 mt-1">{s.label}</span>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </section>
+  );
+}
 
-              </h1>
-              <p
-                className={`md:text-lg text-xs text-gray-700 mb-6 transition-all duration-1000 ${
-                  headinView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-5"
-                }`}
-              >
-                ChemGuard scans your cosmetic ingredients to detect banned or restricted
-                chemicals under EU law, while also explaining their function, health effects,
-                and environmental impact.
-              </p>
-              <button
-                onClick={() => router.push("/check")}
-                className={`w-fit shadow-[6px_6px_0px_black] bg-gradient-to-r from-emerald-700 to-emerald-500 hover:from-emerald-600 hover:to-emerald-400 text-white font-semibold py-3 px-4 md:px-8 rounded-xl hover:shadow-lg transform hover:scale-105 transition-all duration-700 ${
-                  headinView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
-                }`}
-              >
-                Analyze Ingredients
-              </button>
-            </motion.div>
+function Problem() {
+  return (
+    <section className="bg-white py-24 px-6 border-t border-gray-100">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn>
+          <p className="text-emerald-600 text-xs font-bold tracking-widest uppercase mb-3">
+            Why This Matters
+          </p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 max-w-2xl leading-tight">
+            The same product. A very{" "}
+            <span className="text-emerald-600">different formula.</span>
+          </h2>
+          <p className="mt-5 text-gray-600 max-w-2xl text-base leading-relaxed">
+            Products sold in India — and many other markets — can legally contain
+            chemicals that are{" "}
+            <span className="font-semibold text-gray-900">outright banned in Europe</span>.
+            Not restricted. Banned. Because the science says they cause harm.
+            Most consumers never know.
+          </p>
+        </FadeIn>
 
-            <motion.div
-              style={{ y: yImage }}
-              className="w-3/10 flex justify-center items-center"
-            >
-              <Image src="/images/home.png" alt="home Icon" width={200} height={200} />
-            </motion.div>
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-5">
+          {[
+            { flag: "🇺🇸", country: "US FDA", banned: "~11", note: "chemicals banned in cosmetics", highlight: false },
+            { flag: "🇯🇵", country: "Japan", banned: "~70", note: "chemicals restricted", highlight: false },
+            { flag: "🇪🇺", country: "European Union", banned: "1,700+", note: "banned or restricted chemicals", highlight: true },
+          ].map((item, i) => (
+            <FadeIn key={item.country} delay={i * 100}>
+              <div className={`p-6 border-2 ${item.highlight ? "border-emerald-500 bg-emerald-50 shadow-[4px_4px_0px_#10b981]" : "border-gray-200 bg-white"}`}>
+                <p className="text-2xl mb-1">{item.flag}</p>
+                <p className="text-sm font-bold text-gray-700">{item.country}</p>
+                <p className={`text-4xl font-extrabold mt-1 ${item.highlight ? "text-emerald-600" : "text-gray-900"}`}>
+                  {item.banned}
+                </p>
+                <p className="text-gray-500 text-sm mt-1">{item.note}</p>
+                {item.highlight && (
+                  <p className="mt-3 text-xs text-emerald-700 font-semibold">
+                    ChemGuard uses this standard ✓
+                  </p>
+                )}
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+
+        <FadeIn delay={300}>
+          <p className="mt-8 text-gray-400 text-sm max-w-xl leading-relaxed">
+            Every chemical on the EU banned list was reviewed by the Scientific Committee
+            on Consumer Safety (SCCS) — independent scientists, not industry lobbyists.
+          </p>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
+
+function RealExample() {
+  const slides = [
+    {
+      tag: "Real Product · On shelves today",
+      heading: "A BB Cream widely sold in India — with a banned ingredient inside",
+      body: "This is not a hypothetical. This is a real product you can buy right now. The ingredient list contains a chemical banned in the EU since 2022 — and most people reading the label would never know.",
+      image: "/images/example-product.png",
+      imageAlt: "BB Cream product sold in India",
+      reverse: false,
+    },
+    {
+      tag: "The Ingredient List",
+      heading: "Butylphenyl Methylpropional — listed as a fragrance ingredient",
+      body: "There it is on the label. Butylphenyl Methylpropional (also known as Lilial) was banned by the EU in 2022 due to reproductive toxicity concerns. It's still legal in India and appears openly in the ingredient list.",
+      image: "/images/example-ing.png",
+      imageAlt: "Ingredient list showing EU-banned chemical",
+      reverse: true,
+    },
+    {
+      tag: "EU Verification",
+      heading: "Verified on the official EU COSING database",
+      body: "Butylphenyl Methylpropional is listed under EU Annex II — prohibited in all cosmetics sold in Europe. ChemGuard flags it instantly the moment it appears in any ingredient list you paste.",
+      image: "/images/eu-proof.png",
+      imageAlt: "EU COSING database showing banned status",
+      reverse: false,
+      link: true,
+    },
+  ];
+
+  return (
+    <section className="bg-gray-50 py-24 px-6 border-t border-gray-100">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn>
+          <p className="text-emerald-600 text-xs font-bold tracking-widest uppercase mb-3">
+            A Real Example
+          </p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 max-w-2xl leading-tight">
+            This is not hypothetical.{" "}
+            <span className="text-emerald-600">This is a product on shelves right now.</span>
+          </h2>
+        </FadeIn>
+
+        <div className="mt-16 flex flex-col gap-20">
+          {slides.map((slide, i) => (
+            <FadeIn key={slide.tag} delay={100}>
+              <div className={`flex flex-col ${slide.reverse ? "md:flex-row-reverse" : "md:flex-row"} gap-10 items-center`}>
+                <div className="md:w-1/2 flex justify-center">
+                  <div className="border-1 border-black shadow-[4px_4px_0px_#000] overflow-hidden">
+                    <Image
+                      src={slide.image}
+                      alt={slide.imageAlt}
+                      width={480}
+                      height={360}
+                      className="object-contain w-full max-h-80"
+                    />
+                  </div>
+                </div>
+                <div className="md:w-1/2">
+                  <span className="text-xs font-bold text-emerald-600 tracking-widest uppercase">
+                    {slide.tag}
+                  </span>
+                  <h3 className="mt-2 text-xl md:text-2xl font-extrabold text-gray-900 leading-tight">
+                    {slide.heading}
+                  </h3>
+                  <p className="mt-4 text-gray-600 leading-relaxed text-sm md:text-base">
+                    {slide.body}
+                  </p>
+                  {slide.link && (
+                    <a
+                      href="https://ec.europa.eu/growth/sectors/cosmetics/cosing_en"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex items-center gap-1 text-emerald-700 text-sm font-semibold hover:underline"
+                    >
+                      Verify on EU COSING yourself →
+                    </a>
+                  )}
+                </div>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ExampleReport() {
+  return (
+    <section className="bg-white py-24 px-6 border-t border-gray-100">
+      <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-16 items-center">
+        <FadeIn direction="left" className="md:w-1/2">
+          <p className="text-emerald-600 text-xs font-bold tracking-widest uppercase mb-3">
+            What You Get
+          </p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+            A full safety profile.{" "}
+            <span className="text-emerald-600">For every single ingredient.</span>
+          </h2>
+          <p className="mt-5 text-gray-600 text-base leading-relaxed">
+            Paste any ingredient list — from sunscreen, moisturiser, shampoo, anything.
+            ChemGuard returns a complete report: ban status, health effect, environmental
+            label, and a colour-coded safety rating.
+          </p>
+          
+        </FadeIn>
+
+        <FadeIn direction="right" delay={150} className="md:w-1/2 flex justify-center">
+          <div className=" overflow-hidden">
+            <Image
+              src="/images/example.png"
+              alt="ChemGuard ingredient analysis report"
+              width={500}
+              height={400}
+              className="object-contain w-full"
+            />
           </div>
-
-        </section>
+        </FadeIn>
       </div>
-<section className="bg_square-pattren">
-  <div><p className="text-center  text-4xl font-bold px-4 pt-4">Why ChemGuard?</p></div>
-  <div className="md:flex  p-10 pb-20 items-center justify-center">
-  <div ref={refd} className={ ` flex-1 m-4 text-center border-2  bg-white shadow-[6px_6px_0px_black] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-200  p-4 flex flex-col items-center justify-center h-64 transition-all duration-700 ${
-            dinView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
-          }`}>
-    <Image src='/images/ban.png' width={80}  height={80} alt="ban-icon" />
-   <p className="p-2">Detect banned & restricted chemicals (based on EU Annex II & III)</p>
-     </div> 
+    </section>
+  );
+}
 
-     <div ref={refd} className={`border-2  flex-1 m-4 text-center flex-col bg-white shadow-[6px_6px_0px_black] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-200  p-4 flex items-center justify-center h-64 transform transition-all duration-700 delay-200 ${
-            dinView ? "opacity-100 translate-x-0" : "opacity-0 translate-x-10"
-          }`}> 
-       <Image src="/images/botanical.png" alt="botanical-icon" width={100} height={100} />
-       <p className="p-2">Understand ingredient purpose – Is it an emollient, preservative, surfactant, fragrance</p> 
-       </div>
-       </div>
-       </section>
-       <WhyEuStickySection />
+function HowItWorks() {
+  const router = useRouter();
+  const steps = [
+    {
+      num: "01",
+      title: "Paste or photograph",
+      desc: "Copy the ingredient list from any product, or upload a photo of the label.",
+    },
+    {
+      num: "02",
+      title: "Instant database match",
+      desc: "Every ingredient is checked against our EU Annex II & III database — exact and fuzzy matching catches alternate names.",
+    },
+    {
+      num: "03",
+      title: "AI safety enrichment",
+      desc: "Each matched ingredient gets a colour code, health effect summary, and environmental label.",
+    },
+    {
+      num: "04",
+      title: "Your full report",
+      desc: "See every ingredient at a glance. Download as Excel to save or share.",
+    },
+  ];
 
+  return (
+    <section className="bg-gray-50 py-24 px-6 border-t border-gray-100">
+      <div className="max-w-6xl mx-auto">
+        <FadeIn>
+          <p className="text-emerald-600 text-xs font-bold tracking-widest uppercase mb-3">
+            How It Works
+          </p>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 max-w-xl leading-tight">
+            Paste. Analyse. Know exactly what&apos;s on your skin.
+          </h2>
+        </FadeIn>
 
-       
-<section ref={refAnim} className="bg_square-pattren md:p-2 ">
-  <h1 className={`text-center text-3xl  font-bold mb-12 transition-all duration-1000 ${
-      animInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
-    }`}>How It Works</h1>
-  <div className={`flex mb-4 flex-col md:flex-row w-full h-full gap-8 transition-all duration-1000 delay-200 ${
-      animInView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"
-    }`}>
-    
-    <div className="flex-1 text-center border border-black bg-white shadow-[3px_3px_0px_black]
- rounded-lg p-6 flex flex-col items-center justify-center h-64 transition-transform duration-300 hover:scale-105">
-      <div className="w-20 h-20 rounded-full border-2 border-black  bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-xl font-bold mb-4">1</div>
-      <h2 className="text-lg font-bold mb-2">Input Method</h2>
-      <p className="text-gray-700 text-sm">Choose to paste ingredients manually or let AI extract them from a product name.</p>
-    </div>
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-4 gap-6">
+          {steps.map((step, i) => (
+            <FadeIn key={step.num} delay={i * 100}>
+              <div className="border-l-4 border-emerald-500 pl-5 h-full">
+                <span className="text-5xl font-extrabold text-emerald-100 leading-none select-none">
+                  {step.num}
+                </span>
+                <h3 className="mt-2 text-sm font-bold text-gray-900">{step.title}</h3>
+                <p className="mt-2 text-sm text-gray-500 leading-relaxed">{step.desc}</p>
+              </div>
+            </FadeIn>
+          ))}
+        </div>
 
-    <div className="flex-1 text-center border border-black bg-white shadow-[3px_3px_0px_black]
- rounded-lg p-6 flex flex-col items-center justify-center h-64 transition-transform duration-300 hover:scale-105">
-      <div className="w-20 h-20 rounded-full border-2 border-black bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-xl font-bold mb-4">2</div>
-      <h2 className="text-lg font-bold mb-2">Analysis</h2>
-      <p className="text-gray-700 text-sm">Our system analyzes each ingredient against EU safety regulations.</p>
-    </div>
+        <FadeIn delay={400}>
+          <div className="mt-14 flex justify-start">
+            <button
+              onClick={() => router.push("/check")}
+              className="bg-gray-900 text-white font-bold py-3.5 px-8 text-sm shadow-[4px_4px_0px_#10b981] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-200"
+            >
+              Try It Now →
+            </button>
+          </div>
+        </FadeIn>
+      </div>
+    </section>
+  );
+}
 
-    <div className="flex-1 text-center border border-black bg-white shadow-[3px_3px_0px_black]
- rounded-lg p-6 flex flex-col items-center justify-center h-64 transition-transform duration-300 hover:scale-105">
-      <div className="w-20 h-20 rounded-full border-2 border-black bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-xl font-bold mb-4">3</div>
-      <h2 className="text-lg font-bold mb-2">Results</h2>
-      <p className="text-gray-700 text-sm">Get detailed safety information, benefits, and restriction status.</p>
-    </div>
+function CTA() {
+  const router = useRouter();
+  return (
+    <section className="bg-gray-900 py-24 px-6">
+      <FadeIn>
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white leading-tight">
+            What&apos;s actually in your moisturiser?
+          </h2>
+          <p className="mt-4 text-gray-400 text-base leading-relaxed">
+            Paste any ingredient list. ChemGuard will tell you exactly what each one is,
+            whether it&apos;s banned in the EU, and what it does to your body and the
+            environment.
+          </p>
+          <button
+            onClick={() => router.push("/check")}
+            className="mt-8 inline-flex items-center gap-2 bg-emerald-500 text-white font-bold py-4 px-10 shadow-[4px_4px_0px_#fff] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all duration-200 text-base"
+          >
+            Analyse Your Ingredients →
+          </button>
+          <p className="mt-4 text-gray-600 text-xs">
+            Free to use · Sign in with Google to unlock full report
+          </p>
+        </div>
+      </FadeIn>
+    </section>
+  );
+}
 
-  </div>
-</section>
-
-<section className="bg-white py-20 flex  ">
-  <div className="w-full  flex flex-col md:flex-row justify-between  px-6">
-    
-    <div className="md:w-3/5 flex flex-col justify-center ">
-      <p className="text-3xl  md:text-3xl font-bold mb-6">
-        See ChemGuard in Action
-      </p>
-      <p className="text-gray-700  mb-4">
-        When you provide an ingredient list, ChemGuard instantly detects banned, restricted, and safe chemicals according to EU Annex II & III. 
-        It also provides clear explanations about their purpose, potential health risks, and environmental impact.
-      </p>      
-    </div>
-
-    <div className="md:w-2/5 flex justify-center">
-      <Image 
-        src="/images/example.png" 
-        alt="Example Output" 
-        width={400} 
-        height={400} 
-        className="rounded-lg shadow-lg"
-      />
-    </div>
-
-  </div>
-</section>
-
-        
- <section className="bg-white text-black border-2 border-black ">
-  <footer className="max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+function Footer() {
+  return (
+    <footer className="bg-white border-t-2 border-black">
+      <div className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
         <div>
-      <h3 className="text-xl font-bold mb-4">About ChemGuard</h3>
-      <p className="text-black text-sm">
-        I built <span className=" font-bold">ChemGuard</span> to help people make safer cosmetic choices. 
-        Many products hide harmful chemicals, so my goal is to make ingredient analysis simple, clear, and trustworthy.
-      </p>
-      <p className="text-black text-sm mt-2">
-        It’s not just a project for fun—I wanted a tool that protects health and the environment.
-      </p>
-    </div>
-
-    <div>
-      <h3 className="text-xl font-bold mb-4">Why EU Standards?</h3>
-      <p className="text-black text-sm">
-        I chose <span className="font-bold">EU regulations</span> because the EU has the strictest and most trusted cosmetic safety laws in the world. 
-        Other countries like the US or Japan have fewer banned chemicals, which means products there may still contain harmful ingredients.
-      </p>
-      <p className="text-black text-sm mt-2">
-        By using EU Annex II & III as a foundation, ChemGuard ensures you get science-backed, reliable results every time.
-      </p>
-      <a rel="noopener"
-        href="https://ec.europa.eu/growth/sectors/cosmetics/cosing_en"
-        target="_blank"
-        className="text-sky-600 hover:underline text-sm mt-2 inline-block"
-      >
-        Explore EU Cosmetic Regulations
-      </a>
-    </div>
-
-    <div>
-      <h3 className="text-xl font-bold mb-4">Contact & Socials</h3>
-      <p className="text-black text-sm mb-2">
-        Got feedback or questions? I’d love to hear from you! <br/>
-        Email: honnu621@gmail.com
-      </p>
-      <div className="flex space-x-4 mt-2">
-        <a rel="noopener noreferrer"  href="https://github.com/honnu-s" target="_blank" className="text-gray-400 hover:text-gray-900">GitHub</a>
-        {/* <a rel="noopener noreferrer" href="https://linkedin.com/" target="_blank" className="text-gray-400 hover:text-gray-900">LinkedIn</a> */}
-        {/* <a rel="noopener noreferrer" href="https://twitter.com/" target="_blank" className="text-gray-400 hover:text-gray-900">Twitter</a> */}
+          <h3 className="text-sm font-extrabold mb-3">About ChemGuard</h3>
+          <p className="text-gray-500 text-sm leading-relaxed">
+            Built after noticing how many everyday cosmetics contain chemicals banned
+            in Europe. A transparency tool for consumers — not a medical device, but a
+            starting point for informed choices.
+          </p>
+        </div>
+        <div>
+          <h3 className="text-sm font-extrabold mb-3">Why EU Standards?</h3>
+          <p className="text-gray-500 text-sm leading-relaxed">
+            The EU bans 1,700+ cosmetic chemicals versus ~11 by the US FDA. Every
+            substance was reviewed by independent scientists (SCCS) — the world&apos;s
+            most protective standard.
+          </p>
+          <a
+            href="https://ec.europa.eu/growth/sectors/cosmetics/cosing_en"
+            target="_blank"
+            rel="noopener"
+            className="text-emerald-600 hover:underline text-sm mt-2 inline-block font-medium"
+          >
+            EU COSING Database →
+          </a>
+        </div>
+        <div>
+          <h3 className="text-sm font-extrabold mb-3">Contact</h3>
+          <p className="text-gray-500 text-sm mb-1">Got feedback or questions?</p>
+          <p className="text-sm font-medium">honnu621@gmail.com</p>
+          <div className="flex gap-4 mt-3">
+            <a
+              href="https://github.com/honnu-s"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-400 hover:text-gray-900 text-sm font-medium"
+            >
+              GitHub
+            </a>
+          </div>
+          <p className="text-gray-400 text-xs mt-6">
+            © {new Date().getFullYear()} ChemGuard. All rights reserved.
+          </p>
+          <p className="text-gray-400 text-xs mt-1 leading-relaxed">
+            Safety profiles enriched using AI, grounded in PubChem, ECHA, NCBI & EWG.
+            Ban/restriction data from EU Annex II & III directly.
+          </p>
+        </div>
       </div>
-      <p className="text-sky-700 text-xs mt-6">
-        &copy; {new Date().getFullYear()} ChemGuard. Built personally by me. All rights reserved.
-      </p>
-    </div>
-  </footer>
-</section>
+    </footer>
+  );
+}
 
-
-      
-</div>
-</> );
+export default function Home() {
+  return (
+    <>
+      <Navbar />
+      <Hero />
+      <TrustBar />
+      <Problem />
+      <RealExample />
+      <ExampleReport />
+      <HowItWorks />
+      <CTA />
+      <Footer />
+    </>
+  );
 }
