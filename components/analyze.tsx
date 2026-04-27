@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { X, ZoomIn } from "lucide-react";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
-import { Loader2 } from "lucide-react";
-
 
 export function Analyze() {
   const router = useRouter();
@@ -24,23 +22,23 @@ export function Analyze() {
     setError("");
   };
 
- const handleSubmit = () => {
-  const trimmed = inputText.trim();
-  if (!trimmed) {
-    toast.error("Please provide ingredients input");
-    return;
-  }
-  setAnalyze(true);
-  localStorage.setItem(
-    "analyzeInputs",
-    JSON.stringify({ ingredients: trimmed })
-  );
-  try {
-    router.push("/result");
-  } catch (err) {
-    setAnalyze(false);
-  }
-};
+  const handleSubmit = () => {
+    const trimmed = inputText.trim();
+    if (!trimmed) {
+      toast.error("Please provide ingredients input");
+      return;
+    }
+    setAnalyze(true);
+    localStorage.setItem(
+      "analyzeInputs",
+      JSON.stringify({ ingredients: trimmed })
+    );
+    try {
+      router.push("/result");
+    } catch (err) {
+      setAnalyze(false);
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -67,38 +65,60 @@ export function Analyze() {
   };
 
   const handleAnalyzeImage = async () => {
-    if (!imageFile) return;
+    if (!imageFile) {
+      toast.error("Please upload an image first");
+      return;
+    }
 
     setLoading(true);
     try {
+      // Send to YOUR backend — backend calls OCR Space (no CORS issue)
       const form = new FormData();
       form.append("file", imageFile);
-      form.append("apikey", process.env.NEXT_PUBLIC_OCR_API_KEY || "");
-      form.append("language", "eng");
 
-      const res = await fetch("https://api.ocr.space/parse/image", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/ocr`, {
         method: "POST",
         body: form,
+        // DO NOT set Content-Type header — browser sets it automatically with boundary
       });
 
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || "Server error");
+      }
+
       const data = await res.json();
+
       if (data.IsErroredOnProcessing) {
         throw new Error(data.ErrorMessage?.[0] || "OCR failed");
       }
-      console.log(data);
-      const text = data.ParsedResults?.[0]?.ParsedText || "";
-      setInputText(text);
 
-      toast.success("Text extracted successfully!");
-    } catch (err) {
-      toast.error("Could not extract text from image.");
+      const raw = data.ParsedResults?.[0]?.ParsedText || "";
+
+      if (!raw) {
+        toast.error("No text found in image. Try a clearer photo.");
+        return;
+      }
+
+      // Clean up OCR output: newlines → commas so it flows into the textarea nicely
+      const cleaned = raw
+        .replace(/\r\n|\r|\n/g, ", ")
+        .replace(/,\s*,+/g, ",")
+        .replace(/,\s*$/, "")
+        .trim();
+
+      setInputText(cleaned);
+      toast.success("Ingredients extracted! Review and click Analyze.");
+    } catch (err: any) {
+      console.error("OCR error:", err);
+      toast.error(err.message || "Could not extract text from image.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <section className="flex flex-col md:items-center md:justify-center min-h-screen  bg-emerald-50 md:px-6">
+    <section className="flex flex-col md:items-center md:justify-center min-h-screen bg-emerald-50 md:px-6">
       <div className="max-w-5xl w-full bg-white p-6 shadow-[10px_10px_0px_black] rounded-xl">
         <div className="text-center mb-6">
           <h1 className="text-3xl font-bold text-gray-900">
@@ -127,39 +147,36 @@ export function Analyze() {
               placeholder="Paste ingredients here... (e.g., Aqua, Glycerin, etc.)"
             />
             <div className="flex justify-center mt-6">
-          <button
-            onClick={handleSubmit}
-            disabled={analyze}
-className={`flex shadow-[4px_4px_0px_black] ${!analyze ? 'hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] hover:bg-emerald-700' : 'opacity-60 cursor-not-allowed'} transition-all duration-200 items-center text-base bg-emerald-600 text-white font-semibold py-3 px-2 md:px-6 transition`}          >
-            { !analyze && <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="22"
-              height="22"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-search mr-2"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>}
-            {analyze ? (
-              <>
-                <Loader2 className="h-5 w-5 animate-spin pl-2" />
-                Analyzing.....
-              </>
-            ) : (
-              <>Analyze ingredients</>
-            )}
-          </button>
-        </div>
+              <button
+                onClick={handleSubmit}
+                disabled={analyze}
+                className={`flex shadow-[4px_4px_0px_black] ${
+                  !analyze
+                    ? "hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] hover:bg-emerald-700"
+                    : "opacity-60 cursor-not-allowed"
+                } transition-all duration-200 items-center text-base bg-emerald-600 text-white font-semibold py-3 px-2 md:px-6`}
+              >
+                {!analyze && (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="22"
+                    height="22"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="lucide lucide-search mr-2"
+                  />
+                )}
+                {analyze ? <>Analyzing.....</> : <>Analyze ingredients</>}
+              </button>
+            </div>
           </div>
 
           <div className="w-full md:w-1/3">
-            <label className=" flex block text-gray-800 font-bold mb-2">
+            <label className="flex block text-gray-800 font-bold mb-2">
               <Upload className="w-5 h-5 text-emerald-600 mr-2" />
               Upload Label Photo
             </label>
@@ -170,8 +187,7 @@ className={`flex shadow-[4px_4px_0px_black] ${!analyze ? 'hover:shadow-none hove
               accept="image/*"
               ref={fileInputRef}
               onChange={handleImageUpload}
-              className="w-full border border-gray-300 p-2 rounded-xl text-gray-800 shadow-[3px_3px_0px_black]
-"
+              className="w-full border border-gray-300 p-2 rounded-xl text-gray-800 shadow-[3px_3px_0px_black]"
             />
 
             {previewUrl && (
@@ -185,8 +201,7 @@ className={`flex shadow-[4px_4px_0px_black] ${!analyze ? 'hover:shadow-none hove
                 />
                 <button
                   onClick={handleRemoveImage}
-                  className="absolute  top-2 right-2 bg-white p-1 shadow-[3px_3px_0px_black]
- hover:bg-gray-200"
+                  className="absolute top-2 right-2 bg-white p-1 shadow-[3px_3px_0px_black] hover:bg-gray-200"
                   aria-label="Remove image"
                 >
                   <X size={18} className="text-red-600" />
@@ -197,10 +212,9 @@ className={`flex shadow-[4px_4px_0px_black] ${!analyze ? 'hover:shadow-none hove
             <button
               onClick={handleAnalyzeImage}
               disabled={loading}
-              className="shadow-[3px_3px_0px_black]
- mt-4 w-full bg-emerald-500 text-white font-semibold py-2 rounded-xl hover:bg-emerald-600 transition disabled:opacity-50"
+              className="shadow-[3px_3px_0px_black] mt-4 w-full bg-emerald-500 text-white font-semibold py-2 rounded-xl hover:bg-emerald-600 transition disabled:opacity-50"
             >
-              {loading ? "Analyzing..." : "Extract Ingredients"}
+              {loading ? "Extracting..." : "Extract Ingredients"}
             </button>
 
             {!imageFile && (
@@ -235,8 +249,6 @@ className={`flex shadow-[4px_4px_0px_black] ${!analyze ? 'hover:shadow-none hove
             )}
           </div>
         </div>
-
-        
       </div>
 
       {exampleOpen && (
@@ -261,7 +273,10 @@ className={`flex shadow-[4px_4px_0px_black] ${!analyze ? 'hover:shadow-none hove
               </button>
             </div>
 
-            <div className="relative w-full rounded-xl overflow-hidden border border-emerald-200" style={{ aspectRatio: "4/3" }}>
+            <div
+              className="relative w-full rounded-xl overflow-hidden border border-emerald-200"
+              style={{ aspectRatio: "4/3" }}
+            >
               <Image
                 src="/images/ingr.jpg"
                 alt="Example ingredient label"

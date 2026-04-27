@@ -36,11 +36,11 @@ const CARD_RADIUS = "14px";
 function SafetyDrop({ cc }: { cc: string }) {
   const color = (CC as any)[cc]?.dot ?? "#94a3b8";
   return (
-    <svg width="30" height="38" viewBox="-2 -2 24 34" fill="none" xmlns="http://www.w3.org/2000/svg"
+    <svg width="45" height="55" viewBox="-2 -2 24 34" fill="none" xmlns="http://www.w3.org/2000/svg"
       className="flex-shrink-0">
       <path
         d="M10 0.5C10 0.5 0.5 10.5 0.5 16.5a9.5 9.5 0 0 0 19 0C19.5 10.5 10 0.5 10 0.5Z"
-        fill={color} stroke="#111" strokeWidth="2" strokeLinejoin="round"
+        fill={color}  strokeWidth="2" strokeLinejoin="round"
       />
     </svg>
   );
@@ -50,7 +50,7 @@ type BadgeVariant = "banned" | "restricted" | "approved";
 const BADGE_CFG: Record<BadgeVariant, { bg: string; label: string; Icon: any }> = {
   banned:     { bg: "#dc2626", label: "EU Banned",     Icon: ShieldX },
   restricted: { bg: "#d97706", label: "EU Restricted", Icon: ShieldAlert },
-  approved:   { bg: "#2563eb", label: "EU Approved",   Icon: ShieldCheck },
+  approved:   { bg: "#0db840", label: "EU Approved",   Icon: ShieldCheck },
 };
 
 function Pill({ variant }: { variant: BadgeVariant }) {
@@ -86,10 +86,10 @@ function IngredientCard({ item }: { item: any }) {
 
   return (
     <div
-      className="w-full md:w-[70%] mb-4 transition-all"
+      className="w-full md:w-[70%]  transition-all"
       style={{
-        border: "1px solid",
-        borderRadius: CARD_RADIUS,
+        border: "1px solid", 
+        
         borderColor:"#000000",
         
         background: "#fff",
@@ -97,13 +97,13 @@ function IngredientCard({ item }: { item: any }) {
       }}
     >
       <div className="flex items-start justify-between gap-3 px-4 pt-4 pb-3"
-        style={{ borderBottom: "2px solid #f1f5f9" }}>
+        >
 
         <div className="flex items-start gap-3 min-w-0 flex-1">
           <SafetyDrop cc={item.cc} />
           <div className="min-w-0">
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span className="font-extrabold text-[15px] text-gray-900 capitalize leading-tight tracking-tight">
+              <span className="font-extrabold text-[21px] text-gray-900 capitalize leading-tight tracking-tight">
                 {item.input}
               </span>
               {item.ingr?.n && item.ingr.n.toLowerCase() !== item.input && (
@@ -131,20 +131,20 @@ function IngredientCard({ item }: { item: any }) {
       </div>
 
       {item.exp && (
-        <div className="px-4 py-3 flex gap-2 items-start" style={{ borderBottom: "2px solid #f1f5f9" }}>
-          <p className="text-sm text-gray-600 leading-relaxed">{item.exp}</p>
+        <div className="px-4 py-3 flex gap-2 items-start" >
+          <p className="text-[20px] text-gray-800 leading-relaxed">{item.exp}</p>
         </div>
       )}
 
       <div className="grid grid-cols-2 divide-x divide-slate-100"
         style={{ borderBottom: hasBanReason ? "2px solid #f9f1f1" : "none" }}>
         <div className="flex items-center gap-2 px-4 py-2.5">
-          <Heart size={18} style={{ color: styles.dot }} className="flex-shrink-0" />
-          <span className="text-xs text-gray-600 leading-snug">{item.h_e || "—"}</span>
+          <Heart size={25} style={{ color: styles.dot }} className="flex-shrink-0" />
+          <span className="text-sm text-gray-800 capitalize leading-snug">{item.h_e || "—"}</span>
         </div>
         <div className="flex items-center gap-2 px-4 py-2.5">
-          <Leaf size={18} className="text-emerald-500 flex-shrink-0" />
-          <span className="text-xs text-gray-600 capitalize">{item.env || "—"}</span>
+          <Leaf size={25} className="text-emerald-500 flex-shrink-0" />
+          <span className="text-sm text-gray-800 capitalize">{item.env || "—"}</span>
         </div>
       </div>
 
@@ -336,8 +336,8 @@ function IngredientSafetyChart({ counts }: { counts: { Good: number; Moderate: n
           <PieChart>
             <Pie
               data={data} dataKey="value" nameKey="name"
-              cx="50%" cy="50%" innerRadius={55} outerRadius={95}
-              paddingAngle={4} strokeWidth={2.5} stroke="#111"
+              cx="50%" cy="50%" innerRadius={60} outerRadius={100}
+              paddingAngle={4} strokeWidth={2.5} stroke=""
             >
               {data.map((_, i) => <Cell key={i} fill={PIE_COLORS[i]} />)}
             </Pie>
@@ -436,7 +436,6 @@ export function Result() {
     unmatchedString += (unmatchedString ? ", " : "") + item.input;
     return false;
   }
-  // Keep item as long as it has SOME data — ingr OR ban OR res
   if (!item.ingr && !item.ban && !item.res) return false;
   if (item.cc === "green")       counts.Good++;
   else if (item.cc === "yellow") counts.Moderate++;

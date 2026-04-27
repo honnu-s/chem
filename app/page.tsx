@@ -53,7 +53,6 @@ function Hero() {
       <LightRays color="#d0ffe6ff" speed={4} />
 
       <div className="relative z-10 max-w-7xl mx-auto px-6 flex items-center min-h-screen gap-12">
-        {/* Text */}
         <motion.div ref={ref} style={{ y: yText }} className="flex-1 flex flex-col justify-center">
          
           <h1
